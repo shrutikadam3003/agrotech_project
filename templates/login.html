@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | AgroTech</title>
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+    
+    <style>
+        body {
+            /* Your New Rice Paddy Image */
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('https://www.shutterstock.com/image-photo/lush-rice-paddy-field-neat-260nw-2499404003.jpg') !important;
+            
+            /* Background configuration to prevent white borders */
+            background-size: cover !important;
+            background-attachment: fixed !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+
+            /* Centering logic */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 100vh !important;
+            margin: 0 !important;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            width: 90%;
+            padding: 40px;
+            /* Glassmorphism effect so the rice field is visible through the box */
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Input styling to match the theme */
+        .auth-form p { margin-bottom: 15px; text-align: left; }
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+
+        .btn-auth {
+            background: #1b5e20 !important;
+            color: white !important;
+            padding: 14px;
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2 style="color: #1b5e20;">🌱 AgroTech Login</h2>
+        <p style="color: #666; margin-bottom: 25px;"></p>
+
+        {% if messages %}
+        <div style="color: red; margin-bottom: 10px;">
+            {% for message in messages %}{{ message }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-auth">Login to Dashboard</button>
+        </form>
+
+        <p style="margin-top: 25px;">
+            New user? <a href="{% url 'register' %}" style="color: #1b5e20; font-weight: bold; text-decoration: none;">Create Account</a>
+        </p>
+    </div>
+</body>
+</html>

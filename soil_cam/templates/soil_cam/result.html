@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analysis Result</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+
+<body class="analyze-page">
+
+<div class="analyze-wrapper">
+
+    <h1>🌾 Crop Recommendation Result</h1>
+
+    <div class="analysis-card">
+
+        <div class="image-section">
+            <img id="resultImage">
+        </div>
+
+        <div class="input-section" id="resultData"></div>
+
+    </div>
+
+</div>
+
+<script>
+const resultRaw = localStorage.getItem("analysisResult");
+const imgData = localStorage.getItem("soilImage");
+const resultBox = document.getElementById("resultData");
+
+if (!resultRaw || !imgData) {
+    resultBox.innerHTML = "<p>⚠️ No analysis data found.</p>";
+} else {
+    const result = JSON.parse(resultRaw);
+
+    if (result.error) {
+        resultBox.innerHTML = `
+            <p style="color:red;"><strong>${result.error}</strong></p>
+            <button onclick="window.location.href='/soil-cam/'">Try Again</button>
+        `;
+    } else {
+        document.getElementById("resultImage").src = imgData;
+
+        resultBox.innerHTML = `
+            <p><strong>🧱 Soil Type:</strong> ${result.soil_type}</p>
+            <p><strong>🌾 Recommended Crop:</strong> ${result.recommended_crop}</p>
+            <p><strong>📊 Confidence:</strong> ${result.confidence}</p>
+            <p><strong>🌡 Temperature:</strong> ${result.temperature} °C</p>
+            <p><strong>📍 Location:</strong> ${result.location}</p>
+            <p><strong>📅 Date:</strong> ${result.date}</p>
+            <hr>
+<p>Need a more detailed plan?</p>
+<button onclick="window.location.href='{% url 'ai_adviser' %}'" 
+        style="background: #1b6b3a; color: white;">
+    Consult AI Adviser
+</button>
+        `;
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Soil Cam | Maati Cam</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+    
+    <style>
+        /* Specific News Button Logic */
+        nav a.news-btn {
+            background: white !important;
+            color: #1b6b3a !important;
+            border: 1px solid #1b6b3a !important;
+        }
+        nav a.news-btn:hover {
+            background: #1b6b3a !important;
+            color: white !important;
+        }
+        /* Fixes for camera container spacing due to fixed header */
+        .container {
+            margin-top: 100px; 
+        }
+        .top-nav {
+            background-color: #ffffff; /* Ensures navbar is visible on green background */
+        }
+    </style>
+</head>
+<body class="home-page">
+
+<header class="top-nav">
+    <div class="logo">
+        <span class="logo-icon">🌱</span>
+        <span class="logo-text">AgroTech</span>
+    </div>
+
+    <nav>
+        <a href="{% url 'dashboard_home' %}">
+            <i class="bi bi-grid"></i> Dashboard
+        </a>
+        
+        <a class="active" href="{% url 'soil_cam_home' %}">
+            <i class="bi bi-camera"></i> Soil Cam
+        </a>
+
+        <a href="{% url 'ai_adviser' %}" class="adviser-link">
+            <i class="bi bi-robot"></i> AI Adviser
+        </a>
+
+        <a href="{% url 'store_home' %}">
+            <i class="bi bi-cart"></i> Shop
+        </a>
+
+        <a href="{% url 'news_feed' %}" class="news-btn">
+            <i class="bi bi-newspaper"></i> News
+        </a>
+    </nav>
+
+    <div class="profile">
+        {% if request.user.is_authenticated %}
+            <span class="username" style="color: #333; margin-right: 15px;">{{ request.user.username }}</span>
+            <a href="{% url 'logout' %}" style="text-decoration: none; color: #c62828; font-size: 13px;">Logout</a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="container">
+    <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🌾 Maati Cam</h1>
+    <p class="subtitle">AI Based Soil & Crop Recommendation</p>
+    
+    <div class="camera-card">
+        <video id="video" autoplay></video>
+        <button onclick="captureImage()">📷 Capture Soil Image</button>
+        <label class="upload-btn">
+            📂 Upload from Gallery
+            <input type="file" id="uploadImage" accept="image/*" hidden onchange="uploadAndProceed()">
+        </label>
+    </div>
+
+    <canvas id="canvas" hidden></canvas>
+</div>
+
+<script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => video.srcObject = stream)
+        .catch(() => console.log("Camera not available"));
+
+    function captureImage() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0);
+        const imageData = canvas.toDataURL("image/jpeg");
+        localStorage.setItem("soilImage", imageData);
+        window.location.href = "{% url 'soil_cam_analyze' %}";
+    }
+
+    function uploadAndProceed() {
+        const file = document.getElementById("uploadImage").files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            localStorage.setItem("soilImage", reader.result);
+            window.location.href = "{% url 'soil_cam_analyze' %}";
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+</body>
+</html>

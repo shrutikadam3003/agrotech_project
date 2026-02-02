@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Soil Analysis</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body class="analyze-page">
+<div class="analyze-wrapper">
+    <h1>🌱 Soil Analysis</h1>
+    <div class="analysis-card">
+        <div class="image-section">
+            <img id="preview" alt="Soil Image Preview">
+        </div>
+        <div class="input-section">
+            <p>📍 Location & Temperature will be detected automatically</p>
+            <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+            <button type="button" onclick="sendToBackend()">Analyze Soil</button>
+        </div>
+    </div>
+</div>
+<script>
+    const imgData = localStorage.getItem("soilImage");
+    if (!imgData) {
+        alert("No soil image found. Please upload again.");
+        window.location.href = "{% url 'soil_cam_home' %}";
+    }
+    document.getElementById("preview").src = imgData;
+    const csrfToken = document.getElementById("csrfToken").value;
+    const API_KEY = "71dfed57e8e13c76a212ffdabac1218b";
+
+    function getLocationAndTemperature(callback) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`)
+                    .then(res => res.json())
+                    .then(data => callback(`${lat},${lon}`, data.main.temp))
+                    .catch(() => callback(`${lat},${lon}`, "N/A"));
+            },
+            () => {
+                alert("Location permission denied. Proceeding with default values.");
+                callback("Unknown", "N/A");
+            }
+        );
+    }
+
+    function sendToBackend() {
+        fetch(imgData)
+            .then(res => res.blob())
+            .then(blob => {
+                getLocationAndTemperature((coords, temp) => {
+                    const formData = new FormData();
+                    formData.append("image", blob, "soil.jpg");
+                    formData.append("Loc_Cordinates", coords);
+                    formData.append("Temperature", temp);
+                    fetch("{% url 'soil_cam_analyze' %}", {
+                        method: "POST",
+                        headers: { "X-CSRFToken": csrfToken },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        localStorage.setItem("analysisResult", JSON.stringify(data));
+                        window.location.href = "{% url 'soil_cam_result' %}";
+                    })
+                    .catch(() => alert("Error analyzing soil"));
+                });
+            });
+    }
+</script>
+</body>
+</html>

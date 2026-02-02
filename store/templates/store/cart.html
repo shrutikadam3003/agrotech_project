@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart | AgroTech Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --agri-green: #1b6b3a; --bg: #f9fbf7; --danger: #ef4444; --text-muted: #64748b; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 40px 20px; color: #333; }
+        
+        .cart-wrapper { max-width: 900px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        .cart-header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-header h1 { margin: 0; font-size: 1.8rem; color: #1e293b; display: flex; align-items: center; gap: 12px; }
+        
+        /* Item Row Grid */
+        .cart-item { display: grid; grid-template-columns: 100px 1fr 150px 120px 50px; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid #f0f0f0; }
+        .item-img { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; background: #f8fafc; }
+        
+        /* Quantity Controls */
+        .qty-controls { display: flex; align-items: center; gap: 12px; background: #f1f5f9; padding: 6px 12px; border-radius: 50px; width: fit-content; }
+        .qty-btn { border: none; background: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--agri-green); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-decoration: none; transition: 0.2s; }
+        .qty-btn:hover { background: var(--agri-green); color: white; }
+        .qty-val { font-weight: 700; min-width: 20px; text-align: center; }
+
+        /* Summary Section */
+        .total-box { margin-top: 35px; text-align: right; background: #f8fafc; padding: 30px; border-radius: 20px; border: 1px dashed #cbd5e1; }
+        .total-label { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .grand-total { font-size: 2.5rem; font-weight: 800; color: var(--agri-green); margin: 10px 0; }
+        
+        /* Buttons */
+        .btn-checkout { background: var(--agri-green); color: white; padding: 16px 45px; border-radius: 50px; text-decoration: none; font-weight: 700; display: inline-block; transition: 0.3s; border: none; font-size: 1.1rem; }
+        .btn-checkout:hover { background: #14522c; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(27, 107, 58, 0.3); }
+        
+        .continue-link { text-decoration: none; color: var(--agri-green); font-weight: 600; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .continue-link:hover { color: #14522c; }
+        
+        .remove-link { color: var(--danger); text-decoration: none; font-size: 1.3rem; transition: 0.2s; opacity: 0.7; }
+        .remove-link:hover { opacity: 1; transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+    <div class="cart-wrapper">
+        <div class="cart-header">
+            <h1><i class="bi bi-cart3"></i> Your Cart</h1>
+            <a href="{% url 'store_home' %}" class="continue-link">
+                <i class="bi bi-arrow-left"></i> Continue Shopping
+            </a>
+        </div>
+
+        {% if cart_items %}
+            <div class="cart-items-list">
+                {% for item in cart_items %}
+                <div class="cart-item">
+                    <img src="{{ item.product.image_url }}" class="item-img" alt="{{ item.product.name }}">
+                    <div class="item-info">
+                        <h4 style="margin:0; font-size: 1.1rem;">{{ item.product.name }}</h4>
+                        <p style="margin:5px 0; color:var(--text-muted); font-size:0.85rem;">Unit Price: ₹{{ item.product.price }}</p>
+                    </div>
+                    
+                    <div class="qty-controls">
+                        <a href="{% url 'update_cart' item.product.id 'decrement' %}" class="qty-btn" title="Decrease">-</a>
+                        <span class="qty-val">{{ item.quantity }}</span>
+                        <a href="{% url 'update_cart' item.product.id 'increment' %}" class="qty-btn" title="Increase">+</a>
+                    </div>
+
+                    <div style="font-weight: 800; color: #1e293b; font-size: 1.1rem;">₹{{ item.subtotal }}</div>
+                    
+                    <a href="{% url 'remove_from_cart' item.product.id %}" class="remove-link" title="Remove from cart">
+                        <i class="bi bi-trash3"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="total-box">
+                <span class="total-label">Total Amount Payable</span>
+                <div class="grand-total">₹{{ grand_total }}</div>
+                
+                <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 25px;">
+                    <a href="{% url 'store_home' %}" class="continue-link">Add More Items</a>
+                    <a href="{% url 'payment_page' %}" class="btn-checkout">Proceed to Pay</a>
+                </div>
+                <p style="color: #94a3b8; font-size: 0.75rem; margin-top: 15px;">
+                    <i class="bi bi-shield-lock"></i> Secure checkout powered by AgroTech Payments
+                </p>
+            </div>
+
+        {% else %}
+            <div style="text-align: center; padding: 80px 20px;">
+                <div style="background: #f1f5f9; width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="bi bi-basket" style="font-size: 3rem; color: #cbd5e1;"></i>
+                </div>
+                <h3 style="color: #1e293b;">Your basket is empty</h3>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Looks like you haven't added anything to your cart yet.</p>
+                <a href="{% url 'store_home' %}" class="btn-checkout">Go to Store</a>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

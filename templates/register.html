@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | AgroTech</title>
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+    <style>
+        .auth-container { 
+            max-width: 400px; 
+            margin: 60px auto; 
+            padding: 30px; 
+            background: #fff; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            text-align: center; 
+        }
+        .auth-form p { 
+            margin-bottom: 15px; 
+            text-align: left; 
+        }
+        .auth-form input { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            box-sizing: border-box;
+        }
+        .btn-auth { 
+            background: #1b6b3a; 
+            color: white; 
+            padding: 12px; 
+            width: 100%; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 10px;
+        }
+        .btn-auth:hover {
+            background: #14522c;
+        }
+        .errorlist {
+            color: #ff4757;
+            font-size: 0.9rem;
+            text-align: left;
+            padding: 0;
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2 style="color: #1b6b3a;">🌱 Join AgroTech</h2>
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-auth">Register</button>
+        </form>
+        <p style="margin-top: 20px;">
+            Already have an account? <a href="{% url 'login' %}" style="color: #1b6b3a;">Login here</a>
+        </p>
+    </div>
+</body>
+</html>
